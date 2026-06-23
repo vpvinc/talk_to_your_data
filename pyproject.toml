@@ -1,0 +1,42 @@
+[tool.poetry]
+name = "talk-to-your-data"
+version = "0.1.0"
+description = "Natural-language Slack bot for querying a PostgreSQL database"
+authors = ["vp.vincentelli <vp.vincentelli@corsicaferries.com>"]
+readme = "README.md"
+packages = [{ include = "talk_to_your_data" }]
+
+[tool.poetry.dependencies]
+python = ">=3.11,<3.12"
+
+# Core agent
+pandasai = ">=3.0"
+langgraph = ">=0.2"
+langchain-anthropic = ">=0.2"   # or swap for langchain-openai
+
+# Slack interface
+slack-bolt = ">=1.18"
+
+# Database
+psycopg2-binary = ">=2.9"
+sqlalchemy = ">=2.0"
+
+# Utilities
+python-dotenv = ">=1.0"
+pandas = ">=2.0"
+
+[tool.poetry.group.dev.dependencies]
+ruff = ">=0.4"
+jupyter = ">=1.0"
+ipykernel = ">=6.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
