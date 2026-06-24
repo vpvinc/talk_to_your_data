@@ -5,7 +5,9 @@ from slack_bolt.adapter.socket_mode import SocketModeHandler
 
 from talk_to_your_data import engine, intake
 
-app = App(token=os.environ["SLACK_BOT_TOKEN"])
+app = App(token=os.environ["SLACK_BOT_TOKEN"], process_before_response=True)
+
+_seen_msg_ids: set[str] = set()
 
 
 @app.event("message")
@@ -13,6 +15,12 @@ def handle_message(event, say):
     """Receive any user message, run intake, and route to the engine."""
     if event.get("bot_id"):
         return
+
+    msg_id = event.get("client_msg_id")
+    if msg_id in _seen_msg_ids:
+        return
+    if msg_id:
+        _seen_msg_ids.add(msg_id)
 
     print(f"[slack_bot] received: {event}")
 
