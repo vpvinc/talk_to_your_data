@@ -10,9 +10,11 @@ app = App(token=os.environ["SLACK_BOT_TOKEN"])
 
 @app.event("message")
 def handle_message(event, say):
-    """Receive any user message, run intake, and route to the engine (stubbed)."""
+    """Receive any user message, run intake, and route to the engine."""
     if event.get("bot_id"):
         return
+
+    print(f"[slack_bot] received: {event}")
 
     message = intake.process(event)
     reply_ts = message.thread_ts or event.get("ts")
@@ -21,7 +23,13 @@ def handle_message(event, say):
         say(text=f"Sorry, I can't answer that. {message.block_reason}", thread_ts=reply_ts)
         return
 
-    answer = engine.process(message)
+    try:
+        answer = engine.process(message)
+    except Exception as exc:
+        print(f"[slack_bot] engine error: {exc}")
+        say(text="Sorry, something went wrong while processing your question.", thread_ts=reply_ts)
+        return
+
     say(text=answer, thread_ts=reply_ts)
 
 

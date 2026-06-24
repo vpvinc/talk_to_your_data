@@ -1,0 +1,30 @@
+name: user_activity_metrics
+source:
+  type: postgres
+  connection:
+    host: dpg-d35pib0dl3ps7394mc4g-a.oregon-postgres.render.com
+    port: 5432
+    database: beam_neb0
+    user: students
+    password: AIWorkflowsBootcamp
+  table: user_activity_metrics
+description: 'Daily engagement metrics: DAU, WAU, and MAU per calendar date. Use for
+  all DAU/WAU/MAU and engagement trend questions. Do not recompute these from the
+  sessions table.'
+columns:
+- name: date
+  type: datetime
+  description: Calendar date associated with the metric. Each row represents one day
+    of activity.
+- name: dau
+  type: integer
+  description: 'Daily Active Users: distinct users with at least one session on this
+    exact date.'
+- name: wau
+  type: integer
+  description: 'Weekly Active Users: distinct users with at least one session in the
+    7-day period ending on this date.'
+- name: mau
+  type: integer
+  description: 'Monthly Active Users: distinct users with at least one session in
+    the 30-day period ending on this date. Used to calculate DAU/MAU stickiness ratios.'

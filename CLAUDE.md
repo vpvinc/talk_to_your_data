@@ -54,3 +54,4 @@ Phase 2 (not yet started) will add a **memory component** for multi-turn context
 - **Plan mode**: build iteratively, module by module — never plan the whole app at once; complete and validate one piece before moving to the next
 - **Code style**: prefer 5 explicit, readable lines over a clever one-liner; don't write code unless it is necessary for the current task
 - **Verbosity**: keep responses concise; elaborate only when the complexity genuinely warrants it
+- **Diagnostic questions**: when the user asks "is this normal?" or "is this okay?", just answer the question — do not automatically propose a code fix unless they ask for one

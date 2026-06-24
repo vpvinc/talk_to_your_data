@@ -1,0 +1,26 @@
+name: users
+source:
+  type: postgres
+  connection:
+    host: dpg-d35pib0dl3ps7394mc4g-a.oregon-postgres.render.com
+    port: 5432
+    database: beam_neb0
+    user: students
+    password: AIWorkflowsBootcamp
+  table: users
+description: Registered users with signup details, country, and device type. Use for
+  individual user lookups and segmentation by country or device.
+columns:
+- name: user_id
+  type: integer
+  description: Unique identifier for the user.
+- name: signup_date
+  type: datetime
+  description: Date and time when the user signed up.
+- name: country
+  type: string
+  description: 'User''s country based on IP geolocation at signup. Values: US, EU,
+    India, Rest.'
+- name: device_type
+  type: string
+  description: 'Device used at signup. Values: iOS, Android, Web.'

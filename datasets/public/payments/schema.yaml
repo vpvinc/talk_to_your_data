@@ -1,0 +1,30 @@
+name: payments
+source:
+  type: postgres
+  connection:
+    host: dpg-d35pib0dl3ps7394mc4g-a.oregon-postgres.render.com
+    port: 5432
+    database: beam_neb0
+    user: students
+    password: AIWorkflowsBootcamp
+  table: payments
+description: 'Payment transactions linked to subscriptions. Use for individual payment-level
+  questions: method breakdown, payment history per subscription. For total revenue
+  per user use user_revenue_summary instead.'
+columns:
+- name: payment_id
+  type: integer
+  description: Unique identifier for the payment.
+- name: subscription_id
+  type: integer
+  description: Foreign key linking to the subscriptions table.
+- name: payment_date
+  type: datetime
+  description: Date when the payment was made.
+- name: amount_usd
+  type: float
+  description: 'Payment amount in USD. Values: 10.00 (monthly plan), 100.00 (annual
+    plan).'
+- name: method
+  type: string
+  description: 'Payment method used. Values: card, paypal, apple_pay, google_pay.'

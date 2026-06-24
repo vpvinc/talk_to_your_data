@@ -80,7 +80,7 @@ _user_activity_metrics = SemanticLayerSchema(
     description="Daily engagement metrics: DAU, WAU, and MAU per calendar date. Use for all DAU/WAU/MAU and engagement trend questions. Do not recompute these from the sessions table.",
     source=Source(type="postgres", connection=_db_config, table="marts.user_activity_metrics"),
     columns=[
-        Column(name="date", type="date", description="Calendar date associated with the metric. Each row represents one day of activity."),
+        Column(name="date", type="datetime", description="Calendar date associated with the metric. Each row represents one day of activity."),
         Column(name="dau", type="integer", description="Daily Active Users: distinct users with at least one session on this exact date."),
         Column(name="wau", type="integer", description="Weekly Active Users: distinct users with at least one session in the 7-day period ending on this date."),
         Column(name="mau", type="integer", description="Monthly Active Users: distinct users with at least one session in the 30-day period ending on this date. Used to calculate DAU/MAU stickiness ratios."),
