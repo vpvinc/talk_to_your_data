@@ -36,7 +36,7 @@ Phase 2 (not yet started) will add a **memory component** for multi-turn context
 ## Tech Stack
 
 - **PandasAI >= 3** — NLP-to-SQL translation and query execution
-- **LangGraph >= 0.2** — pipeline orchestration (Intake → Engine → Output nodes)
+- **LangGraph >= 0.2** — reserved for Phase 2 (multi-turn memory); Phase 1 uses plain Python function calls
 - **langchain-anthropic** — default LLM provider; swap for `langchain-openai` by changing the import and model config
 - **Slack Bolt** — inbound/outbound Slack I/O
 - **SQLAlchemy + psycopg2** — PostgreSQL connectivity
