@@ -48,3 +48,9 @@ Phase 2 (not yet started) will add a **memory component** for multi-turn context
 - Secrets and connection strings in `.env` (gitignored) — load with `python-dotenv`; see `.env.example` for required keys
 - Entry point: `talk_to_your_data/main.py`
 - Ruff line length: 88; rules: E, F, I (pyflakes + isort)
+
+## Working Style
+
+- **Plan mode**: build iteratively, module by module — never plan the whole app at once; complete and validate one piece before moving to the next
+- **Code style**: prefer 5 explicit, readable lines over a clever one-liner; don't write code unless it is necessary for the current task
+- **Verbosity**: keep responses concise; elaborate only when the complexity genuinely warrants it
