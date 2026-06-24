@@ -33,7 +33,7 @@ The system is composed of a **Main Agent** with three internal subsystems, plus 
 
 **External dependencies:**
 - **Semantic layer** — provides a schema abstraction between the agent and the raw database, used by the NLP-to-SQL step and query execution. semantic layer must integrate smoothly with PandasAI to ensure that the generated SQL queries are valid and efficient.
-- **PostgreSQL database** — the underlying data store queried at runtime
+- **PostgreSQL database** — the underlying data store queried at runtime. Use only "public" schema tables, ignore the schema "marts"
 
 **Orchestration:** Phase 1 uses plain Python function calls to chain Intake → Engine → Output — the pipeline is linear with no branching or stateful routing, so LangGraph adds no value here. LangGraph will be introduced in Phase 2 when multi-turn memory requires stateful, potentially branching orchestration.
 
