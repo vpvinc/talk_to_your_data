@@ -45,3 +45,4 @@ def start():
     """Start the bot in Socket Mode."""
     handler = SocketModeHandler(app, os.environ["SLACK_APP_TOKEN"])
     handler.start()
+    print("[slack_bot] started in Socket Mode")

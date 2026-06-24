@@ -1,4 +1,5 @@
 import os
+import re
 import shutil
 import warnings
 
@@ -83,6 +84,18 @@ def _build_agent(refresh: bool = True) -> Agent:
 _agent = _build_agent()
 
 
+def _format_result(result) -> str:
+    if isinstance(result, pd.DataFrame):
+        return f"```\n{result.to_string(index=False)}\n```"
+    s = str(result).strip()
+    lines = s.split("\n")
+    cleaned = [re.sub(r"^\s*\d+\s{2,}", "", line) for line in lines]
+    cleaned_s = "\n".join(cleaned)
+    if len(lines) > 1:
+        return f"```\n{cleaned_s}\n```"
+    return cleaned_s
+
+
 def process(message: IntakeMessage) -> str:
     result = _agent.chat(message.text)
-    return str(result)
+    return _format_result(result)
