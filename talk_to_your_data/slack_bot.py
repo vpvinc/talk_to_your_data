@@ -3,7 +3,7 @@ import os
 from slack_bolt import App
 from slack_bolt.adapter.socket_mode import SocketModeHandler
 
-from talk_to_your_data import intake
+from talk_to_your_data import engine, intake
 
 app = App(token=os.environ["SLACK_BOT_TOKEN"])
 
@@ -21,8 +21,8 @@ def handle_message(event, say):
         say(text=f"Sorry, I can't answer that. {message.block_reason}", thread_ts=reply_ts)
         return
 
-    # TODO: pass message to the Engine node
-    say(text=f"Got your question: _{message.text}_\n(Engine not wired yet)", thread_ts=reply_ts)
+    answer = engine.process(message)
+    say(text=answer, thread_ts=reply_ts)
 
 
 def start():
