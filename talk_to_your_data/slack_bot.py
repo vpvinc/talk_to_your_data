@@ -1,9 +1,33 @@
 import os
+import threading
+from http.server import BaseHTTPRequestHandler, HTTPServer
 
 from slack_bolt import App
 from slack_bolt.adapter.socket_mode import SocketModeHandler
 
 from talk_to_your_data import engine, intake
+
+
+class _HealthHandler(BaseHTTPRequestHandler):
+    """Minimal HTTP handler that returns 200 OK on any GET request.
+
+    Render's free web service tier spins down after 15 minutes of inactivity.
+    This endpoint is pinged every 14 minutes by UptimeRobot to keep the
+    process alive, while the Slack bot runs in Socket Mode on the main thread.
+    """
+
+    def do_GET(self):
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write(b"ok")
+
+    def log_message(self, *args):
+        pass  # suppress access logs
+
+
+def _start_health_server():
+    port = int(os.environ.get("PORT", 8080))
+    HTTPServer(("0.0.0.0", port), _HealthHandler).serve_forever()
 
 app = App(token=os.environ["SLACK_BOT_TOKEN"], process_before_response=True)
 
@@ -42,7 +66,8 @@ def handle_message(event, say):
 
 
 def start():
-    """Start the bot in Socket Mode."""
+    """Start the bot in Socket Mode with a health endpoint for Render."""
+    threading.Thread(target=_start_health_server, daemon=True).start()
     handler = SocketModeHandler(app, os.environ["SLACK_APP_TOKEN"])
     handler.start()
     print("[slack_bot] started in Socket Mode")
