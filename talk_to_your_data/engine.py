@@ -76,6 +76,10 @@ def _build_agent(refresh: bool = True) -> Agent:
                     {"name": c.name, "type": c.type, "description": c.description}
                     for c in schema.columns
                 ],
+                relations=[
+                    r.model_dump(by_alias=True, exclude_none=True)
+                    for r in schema.relations
+                ] if schema.relations else None,
             )
         datasets.append(dataset)
     return Agent(datasets)

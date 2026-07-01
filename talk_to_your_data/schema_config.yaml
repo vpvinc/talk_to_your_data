@@ -1,0 +1,160 @@
+tables:
+  - name: users
+    table: users
+    db_schema: public
+    description: >
+      Registered users with signup details, country, and device type.
+      Use for individual user lookups and segmentation by country or device.
+    columns:
+      - name: user_id
+        type: integer
+        description: Unique identifier for the user. Primary key.
+      - name: signup_date
+        type: datetime
+        description: Date and time when the user signed up.
+      - name: country
+        type: string
+        description: "User's country based on IP geolocation at signup. Values: US, EU, India, Rest."
+      - name: device_type
+        type: string
+        description: "Device used at signup. Values: iOS, Android, Web."
+
+  - name: sessions
+    table: sessions
+    db_schema: public
+    description: >
+      User activity sessions — one row per session with duration and activity type.
+      Use for individual session-level questions. For DAU/WAU/MAU use user_activity_metrics instead.
+    columns:
+      - name: session_id
+        type: integer
+        description: Unique identifier for the session. Primary key.
+      - name: user_id
+        type: integer
+        description: "Foreign key → users.user_id. Links the session to its owner."
+      - name: session_date
+        type: datetime
+        description: Date and time when the session occurred.
+      - name: duration_minutes
+        type: integer
+        description: Duration of the session in minutes.
+      - name: activity_type
+        type: string
+        description: "Main activity during the session. Values: browse, listen, read."
+    relations:
+      - from: sessions.user_id
+        to: users.user_id
+        description: Each session belongs to one user.
+
+  - name: subscriptions
+    table: subscriptions
+    db_schema: public
+    description: >
+      User subscription records including plan, status, and lifecycle dates.
+      Use for subscription lifecycle questions: churn, plan distribution, active vs expired counts.
+    columns:
+      - name: subscription_id
+        type: integer
+        description: Unique identifier for the subscription. Primary key.
+      - name: user_id
+        type: integer
+        description: "Foreign key → users.user_id. Links the subscription to its owner."
+      - name: plan
+        type: string
+        description: "Subscription plan. Values: free, monthly, annual."
+      - name: start_date
+        type: datetime
+        description: Date when the subscription started.
+      - name: end_date
+        type: datetime
+        description: Date when the subscription ended. Null for currently active subscriptions.
+      - name: status
+        type: string
+        description: "Current subscription status. Values: active, canceled, expired."
+    relations:
+      - from: subscriptions.user_id
+        to: users.user_id
+        description: Each subscription belongs to one user.
+
+  - name: payments
+    table: payments
+    db_schema: public
+    description: >
+      Payment transactions linked to subscriptions.
+      Use for individual payment-level questions: method breakdown, payment history per subscription.
+      For total revenue per user use user_revenue_summary instead.
+    columns:
+      - name: payment_id
+        type: integer
+        description: Unique identifier for the payment. Primary key.
+      - name: subscription_id
+        type: integer
+        description: "Foreign key → subscriptions.subscription_id. Links the payment to its subscription."
+      - name: payment_date
+        type: datetime
+        description: Date when the payment was made.
+      - name: amount_usd
+        type: float
+        description: "Payment amount in USD. Values: 10.00 (monthly plan), 100.00 (annual plan)."
+      - name: method
+        type: string
+        description: "Payment method used. Values: card, paypal, apple_pay, google_pay."
+    relations:
+      - from: payments.subscription_id
+        to: subscriptions.subscription_id
+        description: Each payment is linked to one subscription.
+
+  - name: user_activity_metrics
+    table: user_activity_metrics
+    db_schema: marts
+    description: >
+      Daily engagement metrics: DAU, WAU, and MAU per calendar date.
+      Use for all DAU/WAU/MAU and engagement trend questions.
+      Do not recompute these from the sessions table.
+    columns:
+      - name: date
+        type: datetime
+        description: Calendar date associated with the metric. Each row represents one day of activity.
+      - name: dau
+        type: integer
+        description: "Daily Active Users: distinct users with at least one session on this exact date."
+      - name: wau
+        type: integer
+        description: "Weekly Active Users: distinct users with at least one session in the 7-day period ending on this date."
+      - name: mau
+        type: integer
+        description: "Monthly Active Users: distinct users with at least one session in the 30-day period ending on this date. Used to calculate DAU/MAU stickiness ratios."
+
+  - name: user_revenue_summary
+    table: user_revenue_summary
+    db_schema: marts
+    description: >
+      Per-user revenue summary with lifetime value and most recent subscription plan.
+      Use for revenue aggregations: top customers, total revenue by country or plan.
+      Do not join users and payments manually for these questions.
+    columns:
+      - name: user_id
+        type: integer
+        description: "Unique identifier for the user. Foreign key → users.user_id."
+      - name: country
+        type: string
+        description: User country at signup.
+      - name: signup_date
+        type: datetime
+        description: Date the user signed up.
+      - name: plan
+        type: string
+        description: "Most recent subscription plan. Values: free, monthly, annual."
+      - name: total_payments
+        type: integer
+        description: Total number of payments made by the user.
+      - name: total_revenue_usd
+        type: float
+        description: Total revenue generated by the user in USD.
+      - name: last_payment_date
+        type: datetime
+        description: Most recent payment date for the user.
+    relations:
+      - from: user_revenue_summary.user_id
+        to: users.user_id
+        description: This mart summarizes revenue per user.
