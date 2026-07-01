@@ -105,6 +105,21 @@ Python 3.11 strictly (`>=3.11,<3.12`).
 Queries containing the following terms are blocked before any SQL is generated:
 `password`, `ssn`, `social security`, `credit card`, `phone number`, `date of birth`, `home address`, `personal email`, `private`.
 
+## Deployment (Render)
+
+The bot is hosted on Render as a free Web Service. Because it uses Slack's Socket Mode (an outbound WebSocket connection — no inbound HTTP needed), a small health endpoint runs alongside it so Render has a port to scan.
+
+**How the two tasks coexist**
+
+When you run `python -m talk_to_your_data.main`, Python starts one worker — the *main thread* — that executes code line by line. A single worker can only do one thing at a time, so we hire a second one with `threading.Thread(...)`. Now two things happen simultaneously.
+
+- **Main thread → health server.** Binds to the port Render expects, answers every request with `200 OK`. Render sees an open port immediately and keeps the service alive.
+- **Background thread → Slack connection.** Opens a persistent connection to Slack's servers and waits for messages. Think of it like picking up a phone and keeping the line open — Slack talks to you through that line whenever someone writes to the bot.
+
+The background thread is marked `daemon=True`, which means it automatically stops if the main thread ever exits (like a team that goes home when the manager does). This prevents the process from hanging if the Slack connection crashes — the health server stays up, and Render doesn't kill the service.
+
+To prevent Render's free tier from spinning the service down after 15 minutes of inactivity, set up a free monitor on [UptimeRobot](https://uptimerobot.com) pointing at your Render URL with a 14-minute interval.
+
 ## Limitations (Phase 1)
 
 - No conversational memory — each message is answered independently
