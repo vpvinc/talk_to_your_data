@@ -11,9 +11,11 @@ from talk_to_your_data import engine, intake
 class _HealthHandler(BaseHTTPRequestHandler):
     """Minimal HTTP handler that returns 200 OK on any GET request.
 
-    Render's free web service tier spins down after 15 minutes of inactivity.
-    This endpoint is pinged every 14 minutes by UptimeRobot to keep the
-    process alive, while the Slack bot runs in Socket Mode on the main thread.
+    Render's free web service tier requires a process bound to PORT and spins
+    down after 15 minutes of inactivity. This server runs on the main thread
+    so Render sees an open port immediately. The Slack Socket Mode handler
+    runs in a background thread. UptimeRobot pings this endpoint every 14
+    minutes to prevent spin-down.
     """
 
     def do_GET(self):
@@ -65,9 +67,13 @@ def handle_message(event, say):
     say(text=answer, thread_ts=reply_ts)
 
 
-def start():
-    """Start the bot in Socket Mode with a health endpoint for Render."""
-    threading.Thread(target=_start_health_server, daemon=True).start()
+def _start_slack_handler():
     handler = SocketModeHandler(app, os.environ["SLACK_APP_TOKEN"])
     handler.start()
     print("[slack_bot] started in Socket Mode")
+
+
+def start():
+    """Start the bot: health server on main thread (satisfies Render), Slack in background."""
+    threading.Thread(target=_start_slack_handler, daemon=True).start()
+    _start_health_server()  # blocks forever on main thread — keeps the process alive
